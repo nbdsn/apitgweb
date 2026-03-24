@@ -35,6 +35,12 @@ download_archive() {
   curl -fsSL --retry 3 --retry-delay 2 "$url" -o "$output"
 }
 
+installed_manager_supports_menu() {
+  local manager_path="$1"
+  [[ -f "${manager_path}" ]] || return 1
+  grep -q "show_manage_menu()" "${manager_path}" || grep -q "进入交互式管理菜单" "${manager_path}"
+}
+
 cleanup() {
   rm -rf "${TMP_DIR}"
 }
@@ -49,8 +55,12 @@ if [[ -f "${CONFIG_FILE}" ]]; then
   # shellcheck disable=SC1090
   source "${CONFIG_FILE}"
   if [[ -n "${APP_DIR:-}" && -x "${APP_DIR}/scripts/jdc_manager.sh" ]]; then
-    bash "${APP_DIR}/scripts/jdc_manager.sh" "$@"
-    exit $?
+    if installed_manager_supports_menu "${APP_DIR}/scripts/jdc_manager.sh"; then
+      bash "${APP_DIR}/scripts/jdc_manager.sh" "$@"
+      exit $?
+    else
+      echo "检测到旧版管理脚本，切换到最新引导器..."
+    fi
   fi
 fi
 
