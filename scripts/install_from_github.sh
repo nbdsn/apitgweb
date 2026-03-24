@@ -35,12 +35,6 @@ download_archive() {
   curl -fsSL --retry 3 --retry-delay 2 "$url" -o "$output"
 }
 
-installed_manager_supports_menu() {
-  local manager_path="$1"
-  [[ -f "${manager_path}" ]] || return 1
-  grep -q "show_manage_menu()" "${manager_path}" || grep -q "进入交互式管理菜单" "${manager_path}"
-}
-
 cleanup() {
   rm -rf "${TMP_DIR}"
 }
@@ -49,19 +43,6 @@ trap cleanup EXIT
 if [[ ${EUID} -ne 0 ]]; then
   echo "请使用 root 运行，或在命令前加 sudo"
   exit 1
-fi
-
-if [[ -f "${CONFIG_FILE}" ]]; then
-  # shellcheck disable=SC1090
-  source "${CONFIG_FILE}"
-  if [[ -n "${APP_DIR:-}" && -x "${APP_DIR}/scripts/jdc_manager.sh" ]]; then
-    if installed_manager_supports_menu "${APP_DIR}/scripts/jdc_manager.sh"; then
-      bash "${APP_DIR}/scripts/jdc_manager.sh" "$@"
-      exit $?
-    else
-      echo "检测到旧版管理脚本，切换到最新引导器..."
-    fi
-  fi
 fi
 
 if ! command -v curl >/dev/null 2>&1; then
