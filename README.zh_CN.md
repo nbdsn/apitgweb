@@ -106,6 +106,29 @@
 
 ## 🚀 快速开始
 
+### JDC GitHub 一键安装
+
+在全新 Ubuntu / Debian / CentOS 服务器上直接执行：
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+```
+
+安装完成后的管理命令：
+
+```bash
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh start
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh stop
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restart
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh status
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh backup
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restore latest
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh clear-db
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh uninstall
+```
+
+---
+
 ### 使用 Docker Compose（推荐）
 
 ```bash

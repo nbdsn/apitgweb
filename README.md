@@ -106,6 +106,29 @@
 
 ## 🚀 Quick Start
 
+### JDC One-Command Install (GitHub)
+
+Run this directly on a fresh Ubuntu / Debian / CentOS server:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+```
+
+Management commands after installation:
+
+```bash
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh start
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh stop
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restart
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh status
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh backup
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restore latest
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh clear-db
+sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh uninstall
+```
+
+---
+
 ### Using Docker Compose (Recommended)
 
 ```bash
