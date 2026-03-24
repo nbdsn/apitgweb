@@ -197,6 +197,23 @@ func SetApiRouter(router *gin.Engine) {
 			performanceRoute.GET("/logs", controller.GetLogFiles)
 			performanceRoute.DELETE("/logs", controller.CleanupLogFiles)
 		}
+		jdcBackupRoute := apiRouter.Group("/jdc/backup")
+		jdcBackupRoute.Use(middleware.RootAuth())
+		{
+			jdcBackupRoute.GET("/", controller.GetJDCBackups)
+			jdcBackupRoute.POST("/create", controller.CreateJDCBackup)
+			jdcBackupRoute.GET("/download/:id", controller.DownloadJDCBackup)
+			jdcBackupRoute.POST("/import", controller.ImportJDCBackup)
+			jdcBackupRoute.POST("/restore/:id", controller.RestoreJDCBackup)
+			jdcBackupRoute.DELETE("/cleanup_logs", controller.CleanupJDCDatabaseLogs)
+		}
+		jdcTGRoute := apiRouter.Group("/jdc/tg")
+		jdcTGRoute.Use(middleware.RootAuth())
+		{
+			jdcTGRoute.POST("/run_adjustment", controller.RunJDCQuotaAdjustment)
+			jdcTGRoute.GET("/adjustment_logs", controller.ListJDCQuotaAdjustmentLogs)
+			jdcTGRoute.POST("/send_test", controller.SendJDCTelegramTest)
+		}
 		ratioSyncRoute := apiRouter.Group("/ratio_sync")
 		ratioSyncRoute.Use(middleware.RootAuth())
 		{

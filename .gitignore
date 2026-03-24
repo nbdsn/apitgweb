@@ -29,3 +29,5 @@ data/
 .gomodcache/
 .gocache-temp
 .gopath
+dist/
+未命名文件夹/

@@ -69,6 +69,9 @@ func GetOptions(c *gin.Context) {
 		if strings.HasSuffix(k, "Token") ||
 			strings.HasSuffix(k, "Secret") ||
 			strings.HasSuffix(k, "Key") ||
+			strings.HasSuffix(k, "token") ||
+			strings.HasSuffix(k, "secret") ||
+			strings.HasSuffix(k, "key") ||
 			strings.HasSuffix(k, "secret") ||
 			strings.HasSuffix(k, "api_key") {
 			continue

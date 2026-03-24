@@ -49,6 +49,8 @@ import DrawingSetting from '../../components/settings/DrawingSetting';
 import PaymentSetting from '../../components/settings/PaymentSetting';
 import ModelDeploymentSetting from '../../components/settings/ModelDeploymentSetting';
 import PerformanceSetting from '../../components/settings/PerformanceSetting';
+import JdcBackupSetting from '../../components/settings/JdcBackupSetting';
+import JdcTgSetting from '../../components/settings/JdcTgSetting';
 
 const Setting = () => {
   const { t } = useTranslation();
@@ -157,6 +159,26 @@ const Setting = () => {
       ),
       content: <PerformanceSetting />,
       itemKey: 'performance',
+    });
+    panes.push({
+      tab: (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Server size={18} />
+          {t('jdc 备份')}
+        </span>
+      ),
+      content: <JdcBackupSetting />,
+      itemKey: 'jdc-backup',
+    });
+    panes.push({
+      tab: (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <MessageSquare size={18} />
+          {t('jdcTG')}
+        </span>
+      ),
+      content: <JdcTgSetting />,
+      itemKey: 'jdc-tg',
     });
     panes.push({
       tab: (

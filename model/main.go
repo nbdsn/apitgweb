@@ -264,6 +264,8 @@ func migrateDB() error {
 		&Redemption{},
 		&Ability{},
 		&Log{},
+		&JDCBackupRecord{},
+		&JDCQuotaAdjustmentLog{},
 		&Midjourney{},
 		&TopUp{},
 		&QuotaData{},
@@ -285,7 +287,7 @@ func migrateDB() error {
 		return err
 	}
 	if common.UsingSQLite {
-		if err := ensureSubscriptionPlanTableSQLite(); err != nil {
+		if err := EnsureSubscriptionPlanTableSQLiteWithDB(DB); err != nil {
 			return err
 		}
 	} else {
@@ -312,6 +314,8 @@ func migrateDBFast() error {
 		{&Redemption{}, "Redemption"},
 		{&Ability{}, "Ability"},
 		{&Log{}, "Log"},
+		{&JDCBackupRecord{}, "JDCBackupRecord"},
+		{&JDCQuotaAdjustmentLog{}, "JDCQuotaAdjustmentLog"},
 		{&Midjourney{}, "Midjourney"},
 		{&TopUp{}, "TopUp"},
 		{&QuotaData{}, "QuotaData"},
@@ -353,7 +357,7 @@ func migrateDBFast() error {
 		}
 	}
 	if common.UsingSQLite {
-		if err := ensureSubscriptionPlanTableSQLite(); err != nil {
+		if err := EnsureSubscriptionPlanTableSQLiteWithDB(DB); err != nil {
 			return err
 		}
 	} else {
@@ -382,8 +386,12 @@ func ensureSubscriptionPlanTableSQLite() error {
 	if !common.UsingSQLite {
 		return nil
 	}
+	return EnsureSubscriptionPlanTableSQLiteWithDB(DB)
+}
+
+func EnsureSubscriptionPlanTableSQLiteWithDB(db *gorm.DB) error {
 	tableName := "subscription_plans"
-	if !DB.Migrator().HasTable(tableName) {
+	if !db.Migrator().HasTable(tableName) {
 		createSQL := `CREATE TABLE ` + "`" + tableName + "`" + ` (
 ` + "`id`" + ` integer,
 ` + "`title`" + ` varchar(128) NOT NULL,
@@ -406,12 +414,12 @@ func ensureSubscriptionPlanTableSQLite() error {
 ` + "`updated_at`" + ` bigint,
 PRIMARY KEY (` + "`id`" + `)
 )`
-		return DB.Exec(createSQL).Error
+		return db.Exec(createSQL).Error
 	}
 	var cols []struct {
 		Name string `gorm:"column:name"`
 	}
-	if err := DB.Raw("PRAGMA table_info(`" + tableName + "`)").Scan(&cols).Error; err != nil {
+	if err := db.Raw("PRAGMA table_info(`" + tableName + "`)").Scan(&cols).Error; err != nil {
 		return err
 	}
 	existing := make(map[string]struct{}, len(cols))
@@ -442,7 +450,7 @@ PRIMARY KEY (` + "`id`" + `)
 		if _, ok := existing[col.Name]; ok {
 			continue
 		}
-		if err := DB.Exec("ALTER TABLE `" + tableName + "` ADD COLUMN " + col.DDL).Error; err != nil {
+		if err := db.Exec("ALTER TABLE `" + tableName + "` ADD COLUMN " + col.DDL).Error; err != nil {
 			return err
 		}
 	}
