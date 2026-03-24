@@ -94,17 +94,38 @@ require_root() {
   fi
 }
 
-is_installed() {
+config_exists() {
   [[ -f "${CONFIG_FILE}" ]]
 }
 
-load_config() {
-  if ! is_installed; then
+source_config() {
+  if ! config_exists; then
     error "未找到 ${CONFIG_FILE}，请先安装"
     exit 1
   fi
   # shellcheck disable=SC1090
   source "${CONFIG_FILE}"
+}
+
+is_installed() {
+  if ! config_exists; then
+    return 1
+  fi
+
+  # shellcheck disable=SC1090
+  source "${CONFIG_FILE}"
+
+  [[ -n "${APP_DIR:-}" ]] || return 1
+  [[ -x "${APP_DIR}/newapi" ]] || return 1
+  [[ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]] || return 1
+}
+
+is_partial_install() {
+  config_exists && ! is_installed
+}
+
+load_config() {
+  source_config
 }
 
 prompt_with_default() {
@@ -276,6 +297,14 @@ cmd_install() {
   local data_dir="${DEFAULT_DATA_DIR}"
   local port="${DEFAULT_PORT}"
 
+  if is_partial_install; then
+    source_config
+    install_dir="${INSTALL_DIR:-$install_dir}"
+    data_dir="${DATA_DIR:-$data_dir}"
+    port="${PORT:-$port}"
+    warn "检测到未完成安装，将按修复安装继续执行。"
+  fi
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --install-dir)
@@ -338,6 +367,10 @@ cmd_install() {
 
 cmd_start() {
   require_root
+  if ! is_installed; then
+    error "当前不是完整安装状态，请重新执行安装向导完成修复。"
+    exit 1
+  fi
   load_config
   systemctl start "${SERVICE_NAME}"
   success "服务已启动"
@@ -345,6 +378,10 @@ cmd_start() {
 
 cmd_stop() {
   require_root
+  if ! is_installed; then
+    error "当前不是完整安装状态，请先完成修复安装。"
+    exit 1
+  fi
   load_config
   systemctl stop "${SERVICE_NAME}"
   success "服务已停止"
@@ -352,6 +389,10 @@ cmd_stop() {
 
 cmd_restart() {
   require_root
+  if ! is_installed; then
+    error "当前不是完整安装状态，请先完成修复安装。"
+    exit 1
+  fi
   load_config
   systemctl restart "${SERVICE_NAME}"
   success "服务已重启"
@@ -359,6 +400,10 @@ cmd_restart() {
 
 cmd_status() {
   require_root
+  if ! is_installed; then
+    error "当前不是完整安装状态，请先完成修复安装。"
+    exit 1
+  fi
   load_config
   systemctl status "${SERVICE_NAME}" --no-pager
 }
@@ -494,9 +539,20 @@ show_install_wizard() {
   printf '\n'
 
   local install_dir data_dir port
-  install_dir="$(prompt_with_default '安装目录' "${DEFAULT_INSTALL_DIR}")"
-  data_dir="$(prompt_with_default '数据库和日志目录' "${DEFAULT_DATA_DIR}")"
-  port="$(prompt_with_default '服务端口' "${DEFAULT_PORT}")"
+  if is_partial_install; then
+    source_config
+    install_dir="${INSTALL_DIR:-$DEFAULT_INSTALL_DIR}"
+    data_dir="${DATA_DIR:-$DEFAULT_DATA_DIR}"
+    port="${PORT:-$DEFAULT_PORT}"
+    warn "检测到当前机器处于半安装状态，本次将执行修复安装。"
+  else
+    install_dir="${DEFAULT_INSTALL_DIR}"
+    data_dir="${DEFAULT_DATA_DIR}"
+    port="${DEFAULT_PORT}"
+  fi
+  install_dir="$(prompt_with_default '安装目录' "${install_dir}")"
+  data_dir="$(prompt_with_default '数据库和日志目录' "${data_dir}")"
+  port="$(prompt_with_default '服务端口' "${port}")"
 
   printf '\n'
   info "将按以下配置安装"
