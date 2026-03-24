@@ -1,14 +1,34 @@
 # JDC 安装与管理
 
-## 一键管理脚本
+## GitHub 一键入口
 
-包内统一使用：
+全新服务器直接运行：
 
 ```bash
-bash scripts/jdc_manager.sh install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh)
 ```
 
-安装完成后，可重复执行以下命令：
+说明：
+
+- 第一次运行时会进入交互式安装向导
+- 安装目录、数据库目录、端口都支持直接回车使用默认值
+- 安装完成后，再运行同一条命令会进入交互式管理菜单
+
+如果需要非交互安装：
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+```
+
+## 包内管理脚本
+
+源码包或安装后的程序内，也可以直接执行：
+
+```bash
+bash scripts/jdc_manager.sh
+```
+
+安装完成后，也支持以下命令模式：
 
 ```bash
 bash scripts/jdc_manager.sh start
@@ -24,13 +44,13 @@ bash scripts/jdc_manager.sh uninstall
 ## Ubuntu / Debian
 
 ```bash
-sudo bash scripts/jdc_manager.sh install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+sudo bash scripts/jdc_manager.sh
 ```
 
 ## CentOS / Rocky / AlmaLinux
 
 ```bash
-sudo bash scripts/jdc_manager.sh install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+sudo bash scripts/jdc_manager.sh
 ```
 
 ## 行为说明

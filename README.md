@@ -111,10 +111,22 @@
 Run this directly on a fresh Ubuntu / Debian / CentOS server:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh)
 ```
 
-Management commands after installation:
+Behavior:
+
+- First run: opens the interactive install wizard
+- Press `Enter` to accept defaults for install dir, data dir, and port
+- Run the same command again after installation: opens the interactive management menu
+
+Optional non-interactive install:
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+```
+
+Direct management commands after installation:
 
 ```bash
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh start

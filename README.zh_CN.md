@@ -111,10 +111,22 @@
 在全新 Ubuntu / Debian / CentOS 服务器上直接执行：
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh)
 ```
 
-安装完成后的管理命令：
+行为说明：
+
+- 第一次运行：进入交互式安装向导
+- 安装目录、数据库目录、端口都可以直接回车走默认值
+- 安装完成后再次运行同一条命令：进入交互式管理菜单
+
+如果你想脚本化安装，也可以这样执行：
+
+```bash
+sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jdc-backup-tg/scripts/install_from_github.sh) install --install-dir /opt/newapi-jdc --data-dir /data/newapi-jdc --port 3000
+```
+
+安装完成后的直接管理命令：
 
 ```bash
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh start
