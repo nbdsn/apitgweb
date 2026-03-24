@@ -17,7 +17,7 @@ rm -rf "${PKG_DIR}"
 mkdir -p "${PKG_DIR}/scripts" "${PKG_DIR}/docs"
 
 pushd "${ROOT}/web" >/dev/null
-bun install --frozen-lockfile
+bun install
 DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION="${PACKAGE_VERSION}" bun run build
 popd >/dev/null
 
