@@ -119,7 +119,7 @@ copy_source() {
 }
 
 build_app() {
-  (cd "${APP_DIR}/web" && npm install && npm run build)
+  (cd "${APP_DIR}/web" && npm install --legacy-peer-deps && npm run build)
   (cd "${APP_DIR}" && go build -o newapi .)
 }
 
