@@ -6,9 +6,34 @@ CONFIG_FILE="/etc/${SERVICE_NAME}.conf"
 REPO_OWNER="${REPO_OWNER:-nbdsn}"
 REPO_NAME="${REPO_NAME:-apitgweb}"
 REPO_BRANCH="${REPO_BRANCH:-codex-jdc-backup-tg}"
+RELEASE_TAG="${RELEASE_TAG:-jdc-latest}"
 TMP_DIR="$(mktemp -d /tmp/newapi-jdc-install.XXXXXX)"
+TARGET_OS="linux"
+TARGET_ARCH="amd64"
+PREBUILT_NAME=""
+PREBUILT_URL=""
 ARCHIVE_URL="https://codeload.github.com/${REPO_OWNER}/${REPO_NAME}/tar.gz/refs/heads/${REPO_BRANCH}"
 ARCHIVE_PATH="${TMP_DIR}/repo.tar.gz"
+
+detect_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64)
+      echo amd64
+      ;;
+    aarch64|arm64)
+      echo arm64
+      ;;
+    *)
+      echo amd64
+      ;;
+  esac
+}
+
+download_archive() {
+  local url="$1"
+  local output="$2"
+  curl -fsSL --retry 3 --retry-delay 2 "$url" -o "$output"
+}
 
 cleanup() {
   rm -rf "${TMP_DIR}"
@@ -39,8 +64,16 @@ if ! command -v tar >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "下载源码中: ${ARCHIVE_URL}"
-curl -fsSL "${ARCHIVE_URL}" -o "${ARCHIVE_PATH}"
+TARGET_ARCH="$(detect_arch)"
+PREBUILT_NAME="newapi-jdc-${TARGET_OS}-${TARGET_ARCH}.tar.gz"
+PREBUILT_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/${PREBUILT_NAME}"
+
+if download_archive "${PREBUILT_URL}" "${ARCHIVE_PATH}"; then
+  echo "已下载预编译安装包: ${PREBUILT_URL}"
+else
+  echo "未找到预编译安装包，回退到源码安装包: ${ARCHIVE_URL}"
+  download_archive "${ARCHIVE_URL}" "${ARCHIVE_PATH}"
+fi
 
 tar -xzf "${ARCHIVE_PATH}" -C "${TMP_DIR}"
 SRC_DIR="$(find "${TMP_DIR}" -maxdepth 1 -mindepth 1 -type d | head -n 1)"

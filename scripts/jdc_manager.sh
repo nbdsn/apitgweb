@@ -156,13 +156,35 @@ detect_pm() {
   fi
 }
 
-install_deps() {
+install_runtime_deps() {
   local pm
   pm="$(detect_pm)"
-  info "安装系统依赖..."
+  info "安装运行时依赖..."
   case "${pm}" in
     apt)
       apt-get update
+      DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates tzdata
+      ;;
+    dnf)
+      dnf install -y ca-certificates tzdata
+      ;;
+    yum)
+      yum install -y ca-certificates tzdata
+      ;;
+    *)
+      error "无法识别系统包管理器，请手动安装 ca-certificates tzdata"
+      exit 1
+      ;;
+  esac
+}
+
+install_build_deps() {
+  local pm
+  pm="$(detect_pm)"
+  install_runtime_deps
+  info "安装源码构建依赖..."
+  case "${pm}" in
+    apt)
       DEBIAN_FRONTEND=noninteractive apt-get install -y curl tar git golang nodejs npm
       ;;
     dnf)
@@ -217,13 +239,21 @@ PORT=${PORT}
 CONFIG
 }
 
-copy_source() {
+package_has_binary() {
+  [[ -x "${PACKAGE_ROOT}/newapi" ]]
+}
+
+copy_package_files() {
   mkdir -p "${APP_DIR}"
   cp -R "${PACKAGE_ROOT}/." "${APP_DIR}/"
   rm -rf "${APP_DIR}/.git" "${APP_DIR}/dist" "${APP_DIR}/web/node_modules" "${APP_DIR}/node_modules"
 }
 
 build_app() {
+  if [[ -x "${APP_DIR}/newapi" ]]; then
+    info "检测到预编译安装包，跳过本地构建"
+    return
+  fi
   info "安装前端依赖并构建页面..."
   (cd "${APP_DIR}/web" && npm install --legacy-peer-deps && npm run build)
   info "编译后端程序..."
@@ -283,8 +313,13 @@ cmd_install() {
   info "数据目录: ${DATA_DIR}"
   info "服务端口: ${PORT}"
 
-  install_deps
-  copy_source
+  if package_has_binary; then
+    install_runtime_deps
+  else
+    install_build_deps
+  fi
+
+  copy_package_files
   build_app
   write_runtime_files
   write_service

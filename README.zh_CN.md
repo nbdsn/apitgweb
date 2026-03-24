@@ -119,6 +119,8 @@ sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jd
 - 第一次运行：进入交互式安装向导
 - 安装目录、数据库目录、端口都可以直接回车走默认值
 - 安装完成后再次运行同一条命令：进入交互式管理菜单
+- 安装器会优先从 GitHub Releases 下载预编译安装包
+- 如果预编译包暂时没有生成，会自动回退到源码构建
 
 如果你想脚本化安装，也可以这样执行：
 
@@ -138,6 +140,11 @@ sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restore latest
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh clear-db
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh uninstall
 ```
+
+预编译发布信息：
+
+- 标签：`jdc-latest`
+- 默认文件：`newapi-jdc-linux-amd64.tar.gz`
 
 ---
 

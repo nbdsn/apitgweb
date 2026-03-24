@@ -13,6 +13,8 @@ sudo bash <(curl -fsSL https://raw.githubusercontent.com/nbdsn/apitgweb/codex-jd
 - 第一次运行时会进入交互式安装向导
 - 安装目录、数据库目录、端口都支持直接回车使用默认值
 - 安装完成后，再运行同一条命令会进入交互式管理菜单
+- 安装器默认优先下载 GitHub Releases 中的预编译安装包
+- 如果预编译安装包暂时不可用，会自动回退到源码构建
 
 如果需要非交互安装：
 
@@ -71,3 +73,11 @@ bash scripts/package_jdc_release.sh
 ```
 
 会在 `dist/` 下生成一个可上传到 TG 的源码安装包。
+
+如果要在本地生成预编译安装包：
+
+```bash
+bash scripts/package_jdc_prebuilt_release.sh
+```
+
+默认会在 `dist/` 下生成 `newapi-jdc-linux-amd64.tar.gz`。

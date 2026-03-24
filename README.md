@@ -119,6 +119,8 @@ Behavior:
 - First run: opens the interactive install wizard
 - Press `Enter` to accept defaults for install dir, data dir, and port
 - Run the same command again after installation: opens the interactive management menu
+- The installer will download the prebuilt bundle from GitHub Releases first
+- If the prebuilt bundle is unavailable, it falls back to source build automatically
 
 Optional non-interactive install:
 
@@ -138,6 +140,11 @@ sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh restore latest
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh clear-db
 sudo bash /opt/newapi-jdc/app/scripts/jdc_manager.sh uninstall
 ```
+
+Prebuilt bundle release:
+
+- Tag: `jdc-latest`
+- Default asset: `newapi-jdc-linux-amd64.tar.gz`
 
 ---
 
