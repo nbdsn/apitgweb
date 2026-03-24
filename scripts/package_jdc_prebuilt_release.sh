@@ -17,8 +17,8 @@ rm -rf "${PKG_DIR}"
 mkdir -p "${PKG_DIR}/scripts" "${PKG_DIR}/docs"
 
 pushd "${ROOT}/web" >/dev/null
-npm install --legacy-peer-deps
-DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION="${PACKAGE_VERSION}" npm run build
+bun install --frozen-lockfile
+DISABLE_ESLINT_PLUGIN='true' VITE_REACT_APP_VERSION="${PACKAGE_VERSION}" bun run build
 popd >/dev/null
 
 pushd "${ROOT}" >/dev/null
