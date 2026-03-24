@@ -74,8 +74,33 @@ func (c ChannelInfo) Value() (driver.Value, error) {
 
 // Scan implements sql.Scanner interface
 func (c *ChannelInfo) Scan(value interface{}) error {
-	bytesValue, _ := value.([]byte)
-	return common.Unmarshal(bytesValue, c)
+	*c = ChannelInfo{}
+	switch v := value.(type) {
+	case nil:
+		return nil
+	case []byte:
+		trimmed := strings.TrimSpace(string(v))
+		if trimmed == "" || strings.EqualFold(trimmed, "null") {
+			return nil
+		}
+		return common.Unmarshal([]byte(trimmed), c)
+	case string:
+		trimmed := strings.TrimSpace(v)
+		if trimmed == "" || strings.EqualFold(trimmed, "null") {
+			return nil
+		}
+		return common.Unmarshal([]byte(trimmed), c)
+	default:
+		bytesValue, err := common.Marshal(v)
+		if err != nil {
+			return err
+		}
+		trimmed := strings.TrimSpace(string(bytesValue))
+		if trimmed == "" || strings.EqualFold(trimmed, "null") {
+			return nil
+		}
+		return common.Unmarshal([]byte(trimmed), c)
+	}
 }
 
 func (channel *Channel) GetKeys() []string {
