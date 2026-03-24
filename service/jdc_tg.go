@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"runtime"
 	"sort"
@@ -31,6 +32,11 @@ type JDCQuotaAdjustmentAction struct {
 type telegramUpdateResponse struct {
 	OK     bool             `json:"ok"`
 	Result []telegramUpdate `json:"result"`
+}
+
+type telegramAPIResponse struct {
+	OK          bool   `json:"ok"`
+	Description string `json:"description"`
 }
 
 type telegramUpdate struct {
@@ -218,17 +224,29 @@ func ListJDCQuotaAdjustmentLogs(limit int) ([]*model.JDCQuotaAdjustmentLog, erro
 
 func SendJDCTelegramAdminMessage(message string) error {
 	cfg := setting.GetJDCTGSetting()
-	if !cfg.BotEnabled || cfg.BotToken == "" {
-		return nil
+	if !cfg.BotEnabled {
+		return fmt.Errorf("TG Bot 未启用")
 	}
+	if strings.TrimSpace(cfg.BotToken) == "" {
+		return fmt.Errorf("TG Bot Token 未配置")
+	}
+	validAdmins := 0
+	var sendErrors []string
 	for _, adminID := range cfg.AdminIDs {
 		adminID = strings.TrimSpace(adminID)
 		if adminID == "" {
 			continue
 		}
+		validAdmins++
 		if err := sendTelegramMessage(cfg.BotToken, adminID, message); err != nil {
-			return err
+			sendErrors = append(sendErrors, fmt.Sprintf("%s: %s", adminID, err.Error()))
 		}
+	}
+	if validAdmins == 0 {
+		return fmt.Errorf("管理员 ID 未配置，必须填写数字 Telegram 用户 ID，不是用户名")
+	}
+	if len(sendErrors) == validAdmins {
+		return fmt.Errorf("发送失败：%s", strings.Join(sendErrors, " | "))
 	}
 	return nil
 }
@@ -245,9 +263,21 @@ func sendTelegramMessage(token, chatID, message string) error {
 		if err != nil {
 			return err
 		}
+		respBody, _ := io.ReadAll(resp.Body)
 		_ = resp.Body.Close()
 		if resp.StatusCode >= 300 {
-			return fmt.Errorf("telegram send failed with status %d", resp.StatusCode)
+			var apiResp telegramAPIResponse
+			if err := json.Unmarshal(respBody, &apiResp); err == nil && apiResp.Description != "" {
+				return fmt.Errorf("telegram send failed with status %d: %s", resp.StatusCode, apiResp.Description)
+			}
+			return fmt.Errorf("telegram send failed with status %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+		}
+		var apiResp telegramAPIResponse
+		if err := json.Unmarshal(respBody, &apiResp); err == nil && !apiResp.OK {
+			if apiResp.Description != "" {
+				return fmt.Errorf("telegram send failed: %s", apiResp.Description)
+			}
+			return fmt.Errorf("telegram send failed")
 		}
 	}
 	return nil

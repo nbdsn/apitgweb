@@ -188,8 +188,11 @@ export default function JdcTgSetting() {
             onChange={updateField('jdc_tg.bot_token')}
           />
           <Form.Slot label='管理员 ID'>
-            <TagInput value={inputs['jdc_tg.admin_ids']} onChange={updateField('jdc_tg.admin_ids')} placeholder='输入管理员 Telegram ID 后回车' />
+            <TagInput value={inputs['jdc_tg.admin_ids']} onChange={updateField('jdc_tg.admin_ids')} placeholder='输入管理员 Telegram 数字 ID 后回车，不是 @用户名' />
           </Form.Slot>
+          <Paragraph type='tertiary'>
+            先在 Telegram 里给机器人发送 /start，再填写你的数字 Telegram 用户 ID；否则测试消息和斜杠命令都不会生效。
+          </Paragraph>
           <Form.Switch
             field='jdc_tg.auto_adjust_enabled'
             label='启用每日自动额度处理'
